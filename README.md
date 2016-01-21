@@ -1,8 +1,32 @@
-# Pernalonga
+# Pernalonga [![Code Climate](https://codeclimate.com/github/fellipebrito/pernalonga/badges/gpa.svg)](https://codeclimate.com/github/fellipebrito/pernalonga) [![Test Coverage](https://codeclimate.com/github/fellipebrito/pernalonga/badges/coverage.svg)](https://codeclimate.com/github/fellipebrito/pernalonga/coverage)
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/pernalonga`. To experiment with that code, run `bin/console` for an interactive prompt.
+Pernalonga is a simple wrapper for the Ruby gem Bunny. While Bunny has all classes and methods for utilizing an AMQP queuing system, the code for doing so can take up a lot of space and tends to be repeated across many projects.
 
-TODO: Delete this and the text above, and describe your gem
+## Usage
+Pernalonga sets up the logic of publishing and subscribing to queues and processing messages.
+
+### Connection Configuration
+Your connection configurations must be environment variables.
+
+Pernalonga uses [dotenv](https://github.com/bkeepers/dotenv) to autoload any information you have in a .env file.
+
+A sample .env file would contain the following required variables.
+```
+BUNNY_USER=abc
+BUNNY_VHOST=abc
+BUNNY_PASSWORD=abc
+BUNNY_HOST=abc
+```
+
+### Consuming
+You don’t have to setup all the Bunny objects for Connections, Channels and Queues and arrange your message processing logic within them.
+
+Instead, the only required thing is to simply implement a `process_message` method in your class. This way, once you call `Pernalonga.consume self, "queue_name"` to process messages from a queue, Pernalonga will call back your `process_message` method passing the message as the unique parameter.
+
+### Enqueuing
+To enqueue messages
+ just use `Pernalonga.enqueue "queue_name" message`.
+
 
 ## Installation
 
@@ -20,10 +44,6 @@ Or install it yourself as:
 
     $ gem install pernalonga
 
-## Usage
-
-TODO: Write usage instructions here
-
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
@@ -32,7 +52,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/pernalonga.
+Bug reports and pull requests are welcome on GitHub at https://github.com/fellipebrito/pernalonga.
 
 
 ## License
