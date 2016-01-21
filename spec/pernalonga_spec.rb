@@ -13,4 +13,42 @@ describe Pernalonga do
       expect(ENV['BUNNY_PASSWORD']).to be_truthy
     end
   end
+
+  it 'enqueues a given message' do
+    allow(Bunny).to receive_message_chain(:new,
+                                          :start,
+                                          :create_channel,
+                                          :queue,
+                                          :publish).and_return('BunnyObject')
+
+    enqueue = Pernalonga.enqueue('pernalonga', 'queue-name')
+
+    expect(enqueue).to eql 'BunnyObject'
+  end
+
+  it 'starts a consumer and call process_message on the given class' do
+    # setup
+    channel = double
+    delivery_info = double
+    original_class = double
+
+    allow(Bunny).to receive_message_chain(:new,
+                                          :start,
+                                          create_channel: channel)
+
+    allow(channel).to receive_message_chain(:queue,
+                                            :subscribe).and_yield(delivery_info,
+                                                                  '_metadata',
+                                                                  'Zup, Doc?')
+
+    allow(original_class).to receive(:process_message)
+    allow(delivery_info).to receive(:delivery_tag)
+    allow(channel).to receive(:acknowledge)
+
+    # validate
+    expect(original_class).to receive(:process_message).with('Zup, Doc?')
+
+    # perform
+    Pernalonga.consume original_class, 'queue-name'
+  end
 end
