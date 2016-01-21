@@ -19,7 +19,7 @@ BUNNY_HOST=abc
 ```
 
 ### Consuming
-You don’t have to setup all the Bunny objects for Connections, Channels and Queues and arrange your message processing logic within them.
+As long as you’re a basic queue without an exchange, you don’t have to setup all the Bunny objects for Connections, Channels and arrange your message processing logic within them.
 
 Instead, the only required thing is to simply implement a `process_message` method in your class. This way, once you call `Pernalonga.consume self, "queue_name"` to process messages from a queue, Pernalonga will call back your `process_message` method passing the message as the unique parameter.
 
