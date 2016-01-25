@@ -19,7 +19,9 @@ describe Pernalonga do
                                           :start,
                                           :create_channel,
                                           :queue,
-                                          :publish).and_return('BunnyObject')
+                                          :publish)
+
+    allow(Bunny).to receive_message_chain(:new, :start, :close).and_return('BunnyObject')
 
     enqueue = Pernalonga.enqueue('pernalonga', 'queue-name')
 
@@ -31,6 +33,8 @@ describe Pernalonga do
     channel = double
     delivery_info = double
     original_class = double
+
+    allow(Bunny).to receive_message_chain(:new, :start, :close)
 
     allow(Bunny).to receive_message_chain(:new,
                                           :start,

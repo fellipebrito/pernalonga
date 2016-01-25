@@ -5,10 +5,14 @@ Dotenv.load
 
 module Pernalonga
   class PernalongaApi
+    def initialize
+      @connection = Bunny.new(connection_parameters).start
+    end
+
     def consume(klass, queue)
       @klass = klass
 
-      ch = connect_channel
+      ch = create_channel
       ch.queue(queue)
         .subscribe(consumer_tag: 'pernalonga',
                    block: true,
@@ -16,10 +20,17 @@ module Pernalonga
         klass.process_message msg
         ch.acknowledge(delivery_info.delivery_tag, false)
       end
+
+      @connection.close
     end
 
     def enqueue(queue, message)
-      connect_channel.queue(queue).publish(message)
+      channel = create_channel
+      queue = channel.queue(queue)
+
+      queue.publish(message)
+
+      @connection.close
     end
 
     private
@@ -33,8 +44,8 @@ module Pernalonga
       }
     end
 
-    def connect_channel
-      Bunny.new(connection_parameters).start.create_channel
+    def create_channel
+      @connection.create_channel
     end
   end
 end
