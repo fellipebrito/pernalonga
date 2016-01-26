@@ -1,3 +1,4 @@
+=begin
 require 'bunny'
 require 'yaml'
 require 'dotenv'
@@ -6,31 +7,29 @@ Dotenv.load
 module Pernalonga
   class PernalongaApi
     def initialize
-      @connection = Bunny.new(connection_parameters).start
+      @channel = Bunny.new(connection_parameters).start.create_channel
     end
 
     def consume(klass, queue)
       @klass = klass
 
-      ch = create_channel
-      ch.queue(queue)
+      @channel.queue(queue)
         .subscribe(consumer_tag: 'pernalonga',
                    block: true,
                    manual_ack: true) do |delivery_info, _metadata, msg = q.pop|
         klass.process_message msg
-        ch.acknowledge(delivery_info.delivery_tag, false)
+        @channel.acknowledge(delivery_info.delivery_tag, false)
       end
 
-      @connection.close
+      @channel.close
     end
 
     def enqueue(queue, message)
-      channel = create_channel
-      queue = channel.queue(queue)
+      queue = @channel.queue(queue)
 
       queue.publish(message)
 
-      @connection.close
+      @channel.close
     end
 
     private
@@ -44,8 +43,9 @@ module Pernalonga
       }
     end
 
-    def create_channel
-      @connection.create_channel
-    end
+   # def create_channel
+   #   @connection.create_channel
+   # end
   end
 end
+=end
