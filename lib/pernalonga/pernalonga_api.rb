@@ -5,6 +5,8 @@ Dotenv.load
 
 module Pernalonga
   class PernalongaApi
+    attr_accessor :connection
+
     def initialize
       @connection = Bunny.new(connection_parameters).start
     end
@@ -20,8 +22,6 @@ module Pernalonga
         klass.process_message msg
         ch.acknowledge(delivery_info.delivery_tag, false)
       end
-
-      @connection.close
     end
 
     def enqueue(queue, message)
@@ -29,7 +29,9 @@ module Pernalonga
       queue = channel.queue(queue)
 
       queue.publish(message)
+    end
 
+    def close
       @connection.close
     end
 
